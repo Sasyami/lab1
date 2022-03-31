@@ -30,7 +30,20 @@ void* sum_int(void* a1, void* a2){
 
     return (void*)res;
 }
+int comparator_int(void* a1,void* a2){
+    if (*(int*)a1>*(int*)a2){
+        return 1;
+    }
+    return 0;
 
+}
+int comparator_double(void* a1,void* a2){
+    if (*(double*)a1>*(double*)a2){
+        return 1;
+    }
+    return 0;
+
+}
 void* sum_double(void* a1, void* a2){
     double* res = (double*)malloc(sizeof(double));
 
@@ -105,7 +118,6 @@ char* double_to_string(void* a){
     if (a==NULL){
         return NULL;
     }
-
     int i =0;
     int j,k = 0;
     char* result = malloc(sizeof(char));
@@ -159,7 +171,7 @@ char* double_to_string(void* a){
         i++;
     }
     if(result[i-1] == '.'){
-        result = realloc(result,2*sizeof(char));
+        result = realloc(result,sizeof(char));
         result[i] = '0';
         result[i+1] = '\0';
         return result;
@@ -205,6 +217,7 @@ char** polynom_to_strings(struct polynom* poly){
 }
 void show_pol(struct polynom* poly){
     if (poly!=NULL) {
+        /*
         int len = poly->length;
 
         int i;
@@ -214,22 +227,30 @@ void show_pol(struct polynom* poly){
             printf(" + %s*x^%d", poly->info->to_string(poly->numbers[i]), i);
         }
         printf("\n");
+        */
+        char** new_strings = polynom_to_strings(poly);
+        int i;
+        printf("%s",new_strings[0]);
+        for (i=1;i<poly->length;i++){
+            printf(" + %s*x^%d",new_strings[i],i);
+        }
+        printf("\n");
     }else{
         printf("NULL\n");
     }
 
 }
-struct polynom* create_polynom_zero(struct PolInfo *info, int razmer){
+struct polynom* create_polynom_zero(struct PolInfo *info, int length){
     struct polynom *new_polynom = malloc(sizeof(struct polynom));
-    if ((info ==NULL) ||(razmer<0)){
+    if ((info ==NULL) ||(length < 0)){
         return NULL;
     }
     new_polynom ->info = info;
-    new_polynom -> length = razmer;
-    new_polynom -> numbers = malloc((sizeof(void*))*razmer);
+    new_polynom -> length = length;
+    new_polynom -> numbers = malloc((sizeof(void*)) * length);
     int i;
 
-    for (i = 0;i<razmer;i++){
+    for (i = 0; i < length; i++){
         (new_polynom->numbers)[i] = info->sum(info->zero,info->zero);
 
 
@@ -328,17 +349,45 @@ struct polynom* mult_pol(struct polynom* pol1,struct polynom* pol2){
     if (!info_equal(pol1->info,pol2->info)){
         return NULL;
     }
-    int i,j;
-    pol_res = create_polynom_zero(pol1->info, pol1->length + pol2->length - 1);
 
+    int i = 0;
+    int j = 0;
 
+    int i_not_zero = 0;
+    int j_not_zero = 0;
+
+    for (i = pol1->length-1;i>0;i=i-1){
+        if ((pol1->info->comparator((pol1->numbers)[i],pol1->info->zero))||(pol1->info->comparator(pol1->info->zero,(pol1->numbers)[i]))){
+            i_not_zero = i;
+
+            break;
+        }
+    }
+
+    for (j = pol2->length-1;j>0;j=j-1){
+
+        if ((pol2->info->comparator((pol2->numbers)[j],pol2->info->zero))||(pol2->info->comparator(pol2->info->zero,(pol2->numbers)[j]))){
+            j_not_zero = j;
+
+            break;
+        }
+    }
+
+    if ((i_not_zero+j_not_zero)<1){
+        pol_res = create_polynom_zero(pol1->info, 2);
+    }
+    else{
+        pol_res = create_polynom_zero(pol1->info, i_not_zero+j_not_zero+1);
+    }
     void* multiply;
-    for (i = 0;i<pol1->length; i++){
-        for (j = 0;j<pol2->length; j++){
+    for (i = 0;i<i_not_zero+1; i++){
+        for (j = 0;j<j_not_zero+1; j++){
             //vivod_pol(pol_res);
-            multiply = pol1->info->mult( (pol1->numbers)[i], (pol2->numbers)[j]);
-            pol1->info->add(( pol_res->numbers ) [i + j] , multiply);//pol1->info->mult( (pol1->numbers)[i], (pol2->numbers)[j]));
+
+            multiply = pol1->info->mult((pol1->numbers)[i], (pol2->numbers)[j]);
+            pol1->info->add((pol_res->numbers)[i + j],multiply);//pol1->info->mult( (pol1->numbers)[i], (pol2->numbers)[j]));
             free(multiply);
+
         }
     }
 
@@ -408,6 +457,7 @@ void* pol_value(struct polynom* poly, void* value){
 
         free(multiply);
     }
+
     return res;
 }
 struct polynom* pol_copy(struct polynom* poly){
@@ -419,7 +469,7 @@ struct polynom* pol_copy(struct polynom* poly){
 
     pol_res->info = poly->info;
     pol_res->length = poly->length;
-    pol_res -> numbers = malloc((sizeof(void*))*(pol_res->info->size));
+    pol_res -> numbers = malloc((sizeof(void*))*(pol_res->length));
 
     for (i = 0;i< pol_res->length; i++){
         (pol_res->numbers)[i] = poly->info->sum((poly->numbers)[i],poly->info->zero);
@@ -436,28 +486,37 @@ struct polynom* composition(struct polynom* pol1,struct polynom* pol2){
         return NULL;
     }
 
+    int i;
+    struct polynom* pol_res = create_polynom_zero(pol1->info,2); //= create_polynom_zero(pol1->info, (pol1->length - 1) * (pol2->length - 1)+1);
 
-    struct polynom* pol_res = create_polynom_zero(pol1->info, (pol1->length - 1) * (pol2->length - 1));
+
+
     struct polynom* pol_add;
     struct polynom* pol_add_const;
-    int i;
+
 
 
     pol_add= pol_copy(pol2);
     (pol_res->numbers)[0] = (pol1->numbers)[0];
-    pol_add_const = mult_const(pol_add, (pol1->numbers [1]));
-    pol_res = sum_pol(pol_res, pol_add_const);
+    //pol_add_const = mult_const(pol_add, (pol1->numbers [1]));
+    //pol_res = sum_pol(pol_res, pol_add_const);
 
-    for (i = 2; i < pol1->length; i++) {
+    for (i = 1; i < pol1->length; i++) {
 
-        pol_add = mult_pol(pol_add, pol2);
+
 
 
 
         pol_add_const = mult_const(pol_add, ( pol1->numbers [i]));
+
         pol_res = sum_pol(pol_res, pol_add_const);
+
+        pol_add = mult_pol(pol_add, pol2);
+
+
     }
     //show_pol(pol_res);
+    free(pol_add);
     return pol_res;
 
 
