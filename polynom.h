@@ -16,7 +16,8 @@ void* add_int(void* a1,void* a2);
 void* add_double(void* a1,void* a2);
 char* int_to_string(void*);
 char* double_to_string(void*);
-
+int comparator_int(void*,void*);
+int comparator_double(void*,void*);
 
 struct polynom{
     struct PolInfo* info;
@@ -26,7 +27,7 @@ struct polynom{
 void delete_polynom(struct polynom* poly);
 
 void show_pol(struct polynom* poly);
-struct polynom* create_polynom_zero(struct PolInfo *info, int razmer);
+struct polynom* create_polynom_zero(struct PolInfo *info, int length);
 struct polynom* create_polynom(struct PolInfo *info,int razmer,void* numbers);
 
 struct polynom* random_pol(struct PolInfo* info);
