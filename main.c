@@ -31,7 +31,7 @@ int main(){
     test_substraction();
     test_mult();
     test_composition();
-    void test_else();
+    test_else();
     struct polynom* polynom_result = malloc(sizeof(struct polynom));
     struct polynom* polynom_additional = malloc(sizeof(struct polynom));
     struct polynom* polynom_current = malloc(sizeof(struct polynom));
@@ -67,14 +67,14 @@ int main(){
         }
         switch(*insert_polynom_type) {
             case 49:
-                info_current = create_info(sizeof(double), zero_double, &sum_double, &mult_double, minus_one_double,&add_double,&double_to_string);
+                info_current = create_info(sizeof(double), zero_double, &sum_double, &mult_double, minus_one_double,&add_double,&double_to_string,&comparator_double);
                 polynom_current = random_pol(info_current);
                 polynom_additional = random_pol(info_current);
                 show_pol(polynom_current);
                 show_pol(polynom_additional);
                 break;
             case 50:
-                info_current = create_info(sizeof(double), zero_double, &sum_double, &mult_double, minus_one_double,&add_double,&double_to_string);
+                info_current = create_info(sizeof(double), zero_double, &sum_double, &mult_double, minus_one_double,&add_double,&double_to_string,&comparator_double);
                 //polynom_current = random_pol(info_current);
                 printf("Вводите размер 1 многочлена\n");
                 fgets(insert_polynom_len,3,stdin);
@@ -147,14 +147,14 @@ int main(){
                 show_pol(polynom_additional);
                 break;
             case 51:
-                info_current = create_info(sizeof(int), zero_int, &sum_int, &mult_int, minus_one_int,&add_int,&int_to_string);
+                info_current = create_info(sizeof(int), zero_int, &sum_int, &mult_int, minus_one_int,&add_int,&int_to_string,&comparator_int);
                 polynom_current = random_pol(info_current);
                 polynom_additional = random_pol(info_current);
                 show_pol(polynom_current);
                 show_pol(polynom_additional);
                 break;
             case 52:
-                info_current = create_info(sizeof(int), zero_int, &sum_int, &mult_int, minus_one_int,&add_int,&int_to_string);
+                info_current = create_info(sizeof(int), zero_int, &sum_int, &mult_int, minus_one_int,&add_int,&int_to_string,&comparator_int);
                 printf("Вводите размер 1 многочлена\n");
                 fgets(insert_polynom_len,3,stdin);
 
@@ -434,18 +434,10 @@ int main(){
                     insert_polynom_flag = 0;
                     insert_action_flag = 0;
                     break;
-
                 default:
                     printf("Некорректное значение\n");
-
                     break;
-
             }
         }
-
-
     }
-
-
-
 }
