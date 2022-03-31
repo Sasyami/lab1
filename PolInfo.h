@@ -14,8 +14,9 @@ struct PolInfo{
     void* minus_one;
     void* (*add)(void* , void*);
     char* (*to_string)(void*);
+    int (*comparator)(void*,void*);
 
 };
-struct PolInfo* create_info(size_t size,void* zero,void* (*sum)(void*, void*),void* (*mult)(void*,void*), void* minus_one,void* add,char* (*to_string)(void*));
+struct PolInfo* create_info(size_t size,void* zero,void* (*sum)(void*, void*),void* (*mult)(void*,void*), void* minus_one,void* add,char* (*to_string)(void*),int (*comparator)(void*,void*));
 int info_equal(struct PolInfo* inf1, struct PolInfo* inf2);
 #endif //LAB1_POLINFO_H
